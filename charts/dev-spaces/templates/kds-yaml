@@ -18,78 +18,72 @@ spec:
             origin: https://github.com/rrbanda/coolstore.git
           checkoutFrom:
             revision: main
-
     components:
-      - name: vscode-dev
+      - name: universal-developer
         container:
-          image: registry.redhat.io/devspaces/devspaces-code-rhel8@sha256:b63c2ae61f0e8a497b0708462c3be6fc3d30a8d0228109ad31f88a2d0a224d3f
+          image: quay.io/devfile/universal-developer-image:ubi9-latest
+          cpuLimit: '4'
+          cpuRequest: '1'
           memoryLimit: 8Gi
           memoryRequest: 4Gi
-          cpuLimit: "4"
-          cpuRequest: "1"
           mountSources: true
           sourceMapping: /projects
-          env:
-            - name: PYTHON_VERSION
-              value: "3.11"
           args:
             - tail
             - -f
             - /dev/null
+          env:
+            - name: PYTHON_VERSION
+              value: '3.11'
+          endpoints:
+            - name: frontend
+              targetPort: 3000
+              exposure: public
+              protocol: https
+            - name: backend
+              targetPort: 8080
+              exposure: public
+              protocol: https
           volumeMounts:
             - name: m2
               path: /home/user/.m2
             - name: npm
               path: /home/user/.npm
-          endpoints:
-            - name: frontend
-              targetPort: 3000
-              protocol: https
-              exposure: public
-            - name: backend
-              targetPort: 8080
-              protocol: https
-              exposure: public
-
       - name: m2
         volume:
-          size: 1Gi
+          size: 1G
       - name: npm
         volume:
-          size: 1Gi
-
+          size: 1G
     commands:
       - id: install-frontend
         exec:
           label: "Install Frontend Dependencies"
-          component: vscode-dev
+          component: universal-developer
           workingDir: ${PROJECTS_ROOT}/coolstore/web-app
           commandLine: "npm install"
           group:
             kind: build
-
       - id: run-frontend
         exec:
           label: "Run Frontend"
-          component: vscode-dev
+          component: universal-developer
           workingDir: ${PROJECTS_ROOT}/coolstore/web-app
           commandLine: "npm run dev"
           group:
             kind: run
-
       - id: build-backend
         exec:
           label: "Build Backend (Catalog Service)"
-          component: vscode-dev
+          component: universal-developer
           workingDir: ${PROJECTS_ROOT}/coolstore/services/catalog
           commandLine: "mvn clean install"
           group:
             kind: build
-
       - id: run-backend
         exec:
           label: "Run Backend (Catalog Service)"
-          component: vscode-dev
+          component: universal-developer
           workingDir: ${PROJECTS_ROOT}/coolstore/services/catalog
           commandLine: "mvn quarkus:dev"
           group:
