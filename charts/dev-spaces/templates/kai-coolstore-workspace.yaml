@@ -22,7 +22,7 @@ spec:
     components:
       - name: tools
         container:
-          image: registry.redhat.io/devspaces/udi-rhel9:3.21
+          image: registry.redhat.io/devspaces/udi-rhel9:3.14
           cpuLimit: '4'
           cpuRequest: '1'
           memoryLimit: 8Gi
