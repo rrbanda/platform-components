@@ -22,7 +22,7 @@ spec:
     components:
       - name: tools
         container:
-          image: registry.redhat.io/devspaces/udi-rhel9:3.14
+          image: quay.io/devfile/universal-developer-image:ubi8-latest
           cpuLimit: '4'
           cpuRequest: '1'
           memoryLimit: 8Gi
