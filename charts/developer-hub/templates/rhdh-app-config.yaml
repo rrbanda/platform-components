@@ -7,6 +7,35 @@ data:
     app:
       title: Contract-First IDP
       baseUrl: "https://backstage-backstage-developer-hub.{{ .Values.clusterRouterDomain }}"
+    mta:
+    url: https://mta-openshift-mta.apps.cluster-2mn8w.dynamic.redhatworkshops.io 
+    backendPluginVersion: "0.3.0"
+    backendPluginRoot: "/opt/app-root/src/dynamic-plugins-root/backstage-community-backstage-plugin-mta-backend-0.3.0"
+    providerAuth:
+      realm: mta
+      secret: backstage-provider-secret
+      clientID: backstage-provider
+
+    dynamicPlugins:
+      frontend: 
+        ianbolton.backstage-plugin-mta-frontend:
+          entityTabs:
+            - path: /mta
+              title: MTA
+              mountPoint: entity.page.mta
+          mountPoints:
+            - mountPoint: entity.page.mta/cards
+              importName: EntityMTAContent
+              config:
+                layout:
+                  gridColumn:
+                    lg: 'span 12'
+                    md: 'span 8'
+                    xs: 'span 6'
+                if:
+                  allOf:
+                    - isKind: component 
+                    - isType: service
     
     backend:
       auth:
