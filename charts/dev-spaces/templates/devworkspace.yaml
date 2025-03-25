@@ -2,7 +2,7 @@ apiVersion: workspace.devfile.io/v1alpha2
 kind: DevWorkspace
 metadata:
   name: kai-coolstore-workspace
-  namespace: devspaces
+  namespace: admin-devspaces
   annotations:
     controller.devfile.io/displayName: Konveyor Kai + Coolstore
     controller.devfile.io/description: Explore the Coolstore microservices app with the Konveyor Kai AI extension in Dev Spaces
