@@ -18,7 +18,6 @@ spec:
     metrics:
       enable: true
     pluginRegistry:
-      deploy: true
       openVSXURL: "https://open-vsx.org"
   containerRegistry: {}
   devEnvironments:
