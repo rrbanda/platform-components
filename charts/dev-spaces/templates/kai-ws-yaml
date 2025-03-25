@@ -1,0 +1,103 @@
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspace
+metadata:
+  name: kai-coolstore-workspace
+  namespace: admin-devspaces
+  annotations:
+    controller.devfile.io/displayName: Konveyor Kai + Coolstore
+    controller.devfile.io/description: Explore the Coolstore microservices app with the Konveyor Kai AI extension in Dev Spaces
+    icon: https://raw.githubusercontent.com/konveyor/editor-extensions/main/docs/assets/logo.png
+    tags.devfile.io/devworkspace-type: sample,java,nodejs,ai
+spec:
+  started: true
+  template:
+    projects:
+      - name: coolstore
+        git:
+          remotes:
+            origin: https://github.com/rrbanda/coolstore.git
+          checkoutFrom:
+            revision: main
+
+    components:
+      - name: universal-developer-image
+        container:
+          image: registry.redhat.io/devspaces/udi-rhel9@sha256:65c893972c503b136d6b373c49f113b8c63530d4c7873ef8ab20357e5d43fe7a
+          memoryRequest: "4Gi"
+          memoryLimit: "8Gi"
+          cpuRequest: "1"
+          cpuLimit: "4"
+          mountSources: true
+          sourceMapping: /projects
+          env:
+            - name: PYTHON_VERSION
+              value: "3.11"
+            - name: QUARKUS_HTTP_HOST
+              value: "0.0.0.0"
+          args:
+            - tail
+            - -f
+            - /dev/null
+          volumeMounts:
+            - name: m2
+              path: /home/user/.m2
+            - name: npm
+              path: /home/user/.npm
+          endpoints:
+            - name: frontend
+              targetPort: 3000
+              exposure: public
+              protocol: https
+            - name: backend
+              targetPort: 8080
+              exposure: public
+              protocol: https
+            - name: debug
+              targetPort: 5005
+              exposure: none
+              protocol: tcp
+
+      - name: m2
+        volume:
+          size: 1G
+
+      - name: npm
+        volume:
+          size: 1G
+
+    commands:
+      - id: install-frontend
+        exec:
+          label: "Install Frontend Dependencies"
+          component: universal-developer-image
+          workingDir: ${PROJECTS_ROOT}/coolstore/web-app
+          commandLine: "npm install"
+          group:
+            kind: build
+
+      - id: run-frontend
+        exec:
+          label: "Run Frontend"
+          component: universal-developer-image
+          workingDir: ${PROJECTS_ROOT}/coolstore/web-app
+          commandLine: "npm run dev"
+          group:
+            kind: run
+
+      - id: build-backend
+        exec:
+          label: "Build Backend (Catalog Service)"
+          component: universal-developer-image
+          workingDir: ${PROJECTS_ROOT}/coolstore/services/catalog
+          commandLine: "mvn clean install"
+          group:
+            kind: build
+
+      - id: run-backend
+        exec:
+          label: "Run Backend (Catalog Service)"
+          component: universal-developer-image
+          workingDir: ${PROJECTS_ROOT}/coolstore/services/catalog
+          commandLine: "mvn quarkus:dev"
+          group:
+            kind: run
