@@ -1,0 +1,89 @@
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspace
+metadata:
+  name: kai-coolstore-workspace
+  namespace: devspaces
+  annotations:
+    controller.devfile.io/displayName: Konveyor Kai + Coolstore
+    controller.devfile.io/description: Explore the Coolstore microservices app with the Konveyor Kai AI extension in Dev Spaces
+spec:
+  started: true
+  template:
+    projects:
+      - name: coolstore
+        git:
+          remotes:
+            origin: https://github.com/rrbanda/coolstore.git
+          checkoutFrom:
+            revision: main
+
+    components:
+      - name: tools
+        container:
+          image: quay.io/devfile/universal-developer-image:ubi8-latest
+          memoryLimit: "2Gi"
+          memoryRequest: "1Gi"
+          cpuLimit: "1"
+          cpuRequest: "500m"
+          mountSources: true
+          sourceMapping: /projects
+          endpoints:
+            - name: frontend
+              targetPort: 3000
+              exposure: public
+              protocol: https
+            - name: backend
+              targetPort: 8080
+              exposure: public
+              protocol: https
+          volumeMounts:
+            - name: npm
+              path: /home/user/.npm
+          env:
+            - name: PYTHON_VERSION
+              value: "3.11"
+          args:
+            - tail
+            - -f
+            - /dev/null
+
+      - name: npm
+        volume:
+          size: 1G
+
+    commands:
+      - id: install-frontend
+        exec:
+          label: "Install Frontend Dependencies"
+          component: tools
+          workingDir: ${PROJECTS_ROOT}/coolstore/web-app
+          commandLine: "npm install"
+          group:
+            kind: build
+
+      - id: run-frontend
+        exec:
+          label: "Run Frontend"
+          component: tools
+          workingDir: ${PROJECTS_ROOT}/coolstore/web-app
+          commandLine: "npm run dev"
+          group:
+            kind: run
+
+      - id: build-backend
+        exec:
+          label: "Build Backend (Catalog Service)"
+          component: tools
+          workingDir: ${PROJECTS_ROOT}/coolstore/services/catalog
+          commandLine: "mvn clean install"
+          group:
+            kind: build
+
+      - id: run-backend
+        exec:
+          label: "Run Backend (Catalog Service)"
+          component: tools
+          workingDir: ${PROJECTS_ROOT}/coolstore/services/catalog
+          commandLine: "mvn quarkus:dev"
+          group:
+            kind: run
