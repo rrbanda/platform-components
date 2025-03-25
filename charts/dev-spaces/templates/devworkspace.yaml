@@ -1,7 +1,7 @@
 apiVersion: workspace.devfile.io/v1alpha2
 kind: DevWorkspace
 metadata:
-  name: kai-coolstore-workspace
+  name: kai-coolstore
   namespace: admin-devspaces
   annotations:
     controller.devfile.io/displayName: Konveyor Kai + Coolstore
@@ -46,6 +46,10 @@ spec:
             - tail
             - -f
             - /dev/null
+
+      - name: che-code
+        plugin:
+          id: ms-toolshed.vscode-editor
 
       - name: npm
         volume:
