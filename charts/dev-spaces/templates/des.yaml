@@ -1,0 +1,44 @@
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspace
+metadata:
+  name: vscode-devspace
+  namespace: admin-devspaces
+  annotations:
+    che.eclipse.org/che-editor: che-incubator/che-code/latest
+    che.eclipse.org/last-updated-timestamp: '2025-03-26T00:00:00Z'
+  labels:
+    app.kubernetes.io/created-by: gitops
+    controller.devfile.io/creator: vscode
+spec:
+  routingClass: che
+  started: true
+  template:
+    attributes:
+      controller.devfile.io/devworkspace-config:
+        name: devworkspace-config
+        namespace: openshift-devspaces
+      controller.devfile.io/scc: container-build
+      controller.devfile.io/storage-type: per-user
+    components:
+      - name: universal-developer-image
+        container:
+          image: quay.io/devfile/universal-developer-image:ubi8-latest
+          cpuRequest: "2"
+          cpuLimit: "4"
+          memoryRequest: "4Gi"
+          memoryLimit: "6Gi"
+          mountSources: true
+          sourceMapping: /projects
+          env:
+            - name: PYTHON_VERSION
+              value: "3.11"
+          args:
+            - tail
+            - -f
+            - /dev/null
+          volumeMounts:
+            - name: m2
+              path: /home/user/.m2
+      - name: m2
+        volume:
+          size: 2Gi
