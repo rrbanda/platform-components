@@ -1,0 +1,21 @@
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspace
+metadata:
+  name: vscode-devspace
+  namespace: admin-devspaces
+  annotations:
+    che.eclipse.org/che-editor: che-incubator/che-code/latest
+spec:
+  routingClass: che
+  started: true
+  template:
+    components:
+      - name: universal-developer-image
+        container:
+          image: quay.io/devfile/universal-developer-image:ubi8-latest
+          cpuRequest: "2"
+          cpuLimit: "4"
+          memoryRequest: "4Gi"
+          memoryLimit: "6Gi"
+          mountSources: true
+          sourceMapping: /projects
